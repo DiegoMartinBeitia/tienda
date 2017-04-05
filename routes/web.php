@@ -11,9 +11,12 @@
 |
 */
 
+Route::get('/','Noticias@mostrar');
+/*
 Route::get('/', function () {
     return view('welcome');
 });
+*/
 
 Auth::routes();
 

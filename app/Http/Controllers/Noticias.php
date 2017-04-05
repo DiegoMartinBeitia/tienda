@@ -22,6 +22,13 @@ class Noticias extends Controller
         //
     }
 
+    public function mostrar()
+    {
+        
+        $noticias = Noticia::all();
+        return view('welcome')->with(['noticias'=>$noticias]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -88,6 +95,8 @@ class Noticias extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    
+
     public function edit($id)
     {
         $noticia =Noticia::find($id);
@@ -120,12 +129,14 @@ class Noticias extends Controller
             //se mete con el put el primer parametro es el nombre con la ruta, el segundo es la imagen
             //Storage::disk('imgNoticias')->put($file_route,file_get_contents($img->getRealPath()));
             $noticia->urlImg=$file_route;//carga la ruta donde la guarde
+            Storage::disk('imgNoticias')->delete($request->urlvieja);//aca borra en archivo anterior
+                
         }
         $noticia->titulo=$request->titulo; //carga el titulo
         $noticia->descripcion=$request->descripcion;//carga la descripcion
 
         if ($noticia->save()){
-            return back()->with('msj',$noticia->id);    
+            return redirect('home')->with('msj',$noticia->id);//back()->with('msj',$noticia->id);    
         }else{
             return back()->with('msj',false);    
         }
@@ -141,6 +152,23 @@ class Noticias extends Controller
      */
     public function destroy($id)
     {
-        dd('borrar: '.$id);
+        
+        
+        
+        $noticia=Noticia::find($id);//cuando edita busca el registro 
+        
+        if(Storage::disk('imgNoticias')->exists($noticia->urlImg)){
+            if(Storage::disk('imgNoticias')->delete($noticia->urlImg)){//aca borra en archivo anterior
+                echo "borro ok";
+            }else{
+                echo "Error al intentar borrar";
+            }
+        }else{
+                echo "Error NO encontro el archivo". $noticia->urlImg;
+        }
+        //dd(Storage::disk('imgNoticias'));
+        $noticia::destroy($id);
+        return redirect('home')->with('msj','Noticia eliminada:'.$noticia->titulo);//back()->with('msj',$noticia->id);    
+        
     }
 }
